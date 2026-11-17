@@ -156,8 +156,8 @@ realizar_correlation_matrix <- function (matriz_numerica, tipo) {
   
   correlation <- cor(matriz_numerica, method = tipo) # tipo = "pearson" or "spearman"
   
-    
-  print(ggcorrplot(correlation, lab = TRUE, lab_size = 7, digits = 5, type = "full", title = "Correlación entre variables")) # en heatmap
+  # en heatmap
+  print(ggcorrplot(correlation, lab = TRUE, lab_size = 6, digits = 5, type = "full", title = "Correlación entre variables")+ theme(plot.title = element_text(face = "bold", hjust = 0.5),legend.position = "none")) 
   correlation  # en texto
   
 }
@@ -234,11 +234,14 @@ realizar_fisher <- function (col_categorica1, col_categorica2) {
 
 realizar_chicuadrada <- function (col_categorica1, col_categorica2) {
   
+  nombre_col1 <- names(col_categorica1)
+  nombre_col2 <- names(col_categorica2)
   
-  muestra <- table(col_categorica1, col_categorica2)
+  muestra <- table(col_categorica1[[1]], col_categorica2[[1]])
   test <- chisq.test(muestra) # returnea p-value. Si p<0.05, considerar construir un heatmap para ver tendencias
   print(test)
   
+
   
   datos_heatmap <- as.data.frame(muestra)
   
@@ -247,9 +250,10 @@ realizar_chicuadrada <- function (col_categorica1, col_categorica2) {
   )
   
 
+  
   grafico <- ggplot(datos_heatmap,
-         aes(x = col_categorica2,
-             y = col_categorica1,
+         aes(x = Var2,
+             y = Var1,
              fill = Residuo)) +
     
     geom_tile(color = "white", linewidth = 1) +
@@ -267,11 +271,11 @@ realizar_chicuadrada <- function (col_categorica1, col_categorica2) {
     ) +
     
     labs(
-      title = "Asociación entre variables categóricas",
+      title = paste("Asociación entre variables categóricas: ",nombre_col1," y ", nombre_col2),
       subtitle = paste("Test chi-cuadrado | p-value:", 
                        signif(test$p.value, 3)),
-      x = "Variable 2",
-      y = "Variable 1",
+      x = nombre_col2,
+      y = nombre_col1,
       fill = "Residuo \nestandarizado \nde Pearson"
     ) +
     
@@ -436,7 +440,7 @@ analisis_comparativo <- function (col_numerica, col_categorica) {
 }
 
 
-realizar_MCA <- function (df_mca_data) {
+realizar_MCA <- function (df_mca_data, titulo) {
 
   
   mca_result <- MCA(df_mca_data, graph = FALSE) # quali.sup = c(1,2,3,4,5) <- que variables se quieren mostrar despues tmb pero no son usadas en el calculo
@@ -483,15 +487,18 @@ realizar_MCA <- function (df_mca_data) {
     geom_text_repel() +
     theme_minimal() +
     labs(
-      title = "Mapa factorial MCA",
+      title = titulo,
       x = "Dimensión 1",
       y = "Dimensión 2",
       color = "Atributo"
-    )
+    ) +
+    theme(plot.title = element_text(face = "bold", hjust = 0.5))
+      
+    
   
   print(grafico)
-  print(fviz_contrib(mca_result, choice = "var", axes = 1, top = 99, title = "Dim 1 Contribution"))
-  print(fviz_contrib(mca_result, choice = "var", axes = 2, top = 99, title = "Dim 2 Contribution"))
+  print(fviz_contrib(mca_result, choice = "var", axes = 1, top = 99, title = "Contribución de atributos en dimensión 1") + theme(plot.title = element_text(face = "bold", hjust = 0.5)) )
+  print(fviz_contrib(mca_result, choice = "var", axes = 2, top = 99, title = "Contribución de atributos en dimensión 2") + theme(plot.title = element_text(face = "bold", hjust = 0.5)) )
   
   
   cat("Peso (%) de cada dimension. Se plottean las dos primeras con mas peso: \n")
@@ -509,27 +516,17 @@ cantidad_clusters_Kmeans <- function (df_kmeans_data) {
 
 
 
-realizar_Kmeans <- function (df_kmeans_data, nombres, k) {
+realizar_Kmeans <- function (df_kmeans_data, nombres, k, titulo) {
   matriz <- df_kmeans_data
   matriz <- scale(matriz) # mappear la info para que se proprocione a escala
   
   clusterResult <- kmeans(matriz, centers = k, nstart = 100) # hacer k-means con k clusters
   clusters <- clusterResult$cluster # obtener los mapeos
   
-  if (TRUE) {
-    # dar nombre a cada instancia mapeada en los clusters
-    rownames(matriz) <- paste(nombres) 
+  # dar nombre a cada instancia mapeada en los clusters
+  rownames(matriz) <- paste(nombres) 
     
-  } else {
-    # O hacerlo mediante llamandolo valorAtributo_NdeOcurrencia
-    nombres <- df_excel$Sentiment_New[seq_len(nrow(matriz))] 
-    
-    rownames(matriz) <- paste0(
-      nombres, "_",
-      ave(seq_along(nombres), nombres, FUN = seq_along)
-    )
-    
-  }
+
   
   
   # PCA
@@ -558,8 +555,8 @@ realizar_Kmeans <- function (df_kmeans_data, nombres, k) {
     repel = TRUE
   ))  
   
-  
-  print(fviz_cluster(list(data = matriz, cluster = clusters))) # visualizar los clusters creados
+  # visualizar los clusters creados
+  print(fviz_cluster(list(data = matriz, cluster = clusters)) + ggtitle(titulo) + theme(plot.title = element_text(face = "bold", hjust = 0.5),legend.position = "none")) 
  
   
   return(clusters)

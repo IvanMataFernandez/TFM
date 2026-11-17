@@ -5,13 +5,13 @@ library("dplyr")
 
 importar_df_empresas <- function () {
   # Obtener el DF from excel
-  ruta_excel <- "C:\\Users\\ivanm\\Desktop\\RStudioWS\\main\\muestras\\MuestraEmpresas.xlsx"
+  ruta_excel <- paste0(getwd(), "\\muestras\\MuestraEmpresas.xlsx")
   xlsx <- read_excel(ruta_excel)
   df <- data.frame(xlsx)
   
   
   df <- df %>%
-    select(-CIUDAD, -MODELO, -SUB_INDUSTRIA, -AUTONOMIA_FINANCIERA)   # Elminar estas 4 cols, no las veo necesarias por ahora
+    select(-CIUDAD, -MODELO, -SUB_INDUSTRIA, -AUTONOMIA_FINANCIERA, -IT_OR_TECH)   # Elminar estas 5 cols, no las veo necesarias por ahora
   
   
   # Combinar columnas Fundador_En_IT & Fundador_En_Tech
@@ -19,7 +19,7 @@ importar_df_empresas <- function () {
     mutate(FUNDADOR_ESTUDIOS = case_when(
       FUNDADOR_EN_IT == "SI" & FUNDADOR_EN_TECH == "SI" ~ "NO_RELACIONADOS",
    #   FUNDADOR_EN_IT == "SI" & FUNDADOR_EN_TECH == "NO" ~ "INFORMÁTICA",   <- ninguna instancia cumple con esto, redundant
-      FUNDADOR_EN_IT == "NO" & FUNDADOR_EN_TECH == "SI" ~ "TECNOLOGÍA",
+      FUNDADOR_EN_IT == "NO" & FUNDADOR_EN_TECH == "SI" ~ "SOLO_TECH",
       FUNDADOR_EN_IT == "NO" & FUNDADOR_EN_TECH == "NO" ~ "IT_&_TECH"
     ))
   
@@ -40,6 +40,10 @@ importar_df_empresas <- function () {
   
   
   
+
+  
+  
+  
   
   label_list <- c("EARLY_STAGE", "BREAKOUT_STAGE", "LATE_STAGE")
   df$MADUREZ_EMPRESARIAL <- factor(df$MADUREZ_EMPRESARIAL, ordered = TRUE, levels = label_list, labels = label_list)
@@ -50,10 +54,10 @@ importar_df_empresas <- function () {
   label_list <- c("NO", "SI")
   df$ES_ACQUIRED <- factor(df$ES_ACQUIRED, ordered = FALSE, levels = label_list, labels = label_list)
   df$ES_SPINOUT <- factor(df$ES_SPINOUT, ordered = FALSE, levels = label_list, labels = label_list)
-  df$IT_OR_TECH <- factor(df$IT_OR_TECH, ordered = FALSE, levels = label_list, labels = label_list)
   df$SERIAL_FOUNDER <- factor(df$SERIAL_FOUNDER, ordered = FALSE, levels = label_list, labels = label_list)
+  # df$IT_OR_TECH <- factor(df$IT_OR_TECH, ordered = FALSE, levels = label_list, labels = label_list)
   
-  label_list <- c("NO_RELACIONADOS", "TECNOLOGÍA", "IT_&_TECH")
+  label_list <- c("NO_RELACIONADOS", "SOLO_TECH", "IT_&_TECH")
   df$FUNDADOR_ESTUDIOS <- factor(df$FUNDADOR_ESTUDIOS, ordered = FALSE, levels = label_list, labels = label_list)
   
   label_list <- c("<35", "35-45", ">45")
@@ -67,13 +71,19 @@ importar_df_empresas <- function () {
   df$RONDAS_DE_FINANCIACION <- as.integer(df$RONDAS_DE_FINANCIACION)
   
   
+  df$INDUSTRIA[df$INDUSTRIA == "JOB_RECRUITMENT"] <- "JOB_REC."
+  df$INDUSTRIA[df$INDUSTRIA == "SEMICONDUCTORS"] <- "SEMICOND."
+  df$INDUSTRIA[df$INDUSTRIA == "TRANSPORTATION"] <- "TRANSP."
+  df$INDUSTRIA[df$INDUSTRIA == "HOME_LIVING"] <- "HOME_LIFE"
+
+
   
-  names(df) <- c("Nombre", "Año_Fundacion", "CCAA", "Industria", "Empleados","Madurez_Empresarial" ,"Madurez_Financiera", "Es_Acquired", "Es_Spinout", "Valoracion", "Ingresos", "Financiacion", "Rondas_De_Financiacion", "Fundador_IT_o_Tech", "Fundador_En_Serie", "Fundador_Estudios", "Fundador_Edad") 
+  
+  names(df) <- c("Nombre", "Año_Fundacion", "CCAA", "Industria", "Empleados","Madurez_Empresarial" ,"Madurez_Financiera", "Es_Acquired", "Es_Spinout", "Valoracion", "Ingresos", "Financiacion", "Rondas_De_Financiacion", "Fundador_En_Serie", "Fundador_Estudios", "Fundador_Edad") 
   
   return(df)
   
-  
-  
+
 }
 
 
@@ -81,7 +91,7 @@ importar_df_empresas <- function () {
 importar_df_prueba <- function () {
   
   # Obtener el DF from excel
-  ruta_excel <- "C:\\Users\\ivanm\\Desktop\\RStudioWS\\main\\muestras\\testsample.xlsx"
+  ruta_excel <- paste0(getwd(), "\\muestras\\testsample.xlsx")
   xlsx <- read_excel(ruta_excel)
   df <- data.frame(xlsx)
   

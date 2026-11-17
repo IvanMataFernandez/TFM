@@ -19,38 +19,109 @@ source("r_scripts/data_importer.R")
 plot_mapa <- function(columna_ccaa, titulo, leyenda) {
   
   ### Mapa de España
-  ccaa <- mapSpain::esp_get_ccaa()
+  ccaa <- mapSpain::esp_get_ccaa()   # Obtener geometrías de las CCAA
   ccaa_en_libreria <- unique(ccaa$ine.ccaa.name)
   ccaa_comunes <- c("ANDALUCIA", "ARAGON", "ASTURIAS", "BALEARES", "CANARIAS", "CANTABRIA", "CASTILLA_Y_LEON", "CASTILLA_LA_MANCHA", "CATALUÑA", "VALENCIA", "EXTREMADURA", "GALICIA", "MADRID", "MURCIA", "NAVARRA", "EUSKADI", "RIOJA", "CEUTA", "MELILLA")
   lista <- ccaa_en_libreria[match(columna_ccaa, ccaa_comunes)]
   
   
-  frec <- as.data.frame(table(lista))                                 
+  ### Calcular frecuencias
+  frec <- as.data.frame(table(lista))
   names(frec) <- c("ccaa", "cant")
   
+  ### Calcular porcentajes sobre el total
+  frec$porcentaje <- frec$cant / sum(frec$cant) * 100
   
-  
-  # Obtener geometrías de las CCAA
-  ccaa <- mapSpain::esp_get_ccaa()
-
+  ### Unir con geometrías
   mapa <- ccaa |>
     left_join(frec, by = c("ine.ccaa.name" = "ccaa"))
+  
+
+  
+  ### Dibujar mapa
+  
+  # Dibujar el mapa
+  ggplot(mapa) +
+    geom_sf(aes(fill = porcentaje), color = "white", linewidth = 0.3) +
+    geom_sf_text(
+      aes(label = ifelse(
+        is.na(porcentaje),
+        "N/A",
+        paste0(cant,"\n( ",round(porcentaje, 1), "% )")
+      )),
+      size = 3,
+      fontface = "bold",
+      color = "black"
+    ) +
+    scale_fill_gradient(
+      low = "#CAE9FF",
+      high = "#1B4965",
+      na.value = "grey70",
+      name = leyenda,
+      limits = c(0, 100),
+      breaks = seq(0, 100, 20),
+      labels = function(x) paste0(x, "%")
+    ) +
+    labs(title = paste("                         ", titulo)) +
+    theme_void() + theme(
+      plot.title = element_text(face = "bold", hjust = 0.5),
+      legend.position = c(0.1, 0.9)
+    )
+  
+}
+
+
+plot_mapa_proporciones <- function(columna_ccaa, proporciones, titulo, leyenda) {
+  
+  ### Mapa de España
+  ccaa <- mapSpain::esp_get_ccaa() # Obtener geometrías de las CCAA
+  ccaa_en_libreria <- unique(ccaa$ine.ccaa.name)
+  ccaa_comunes <- c("ANDALUCIA", "ARAGON", "ASTURIAS", "BALEARES", "CANARIAS", "CANTABRIA", "CASTILLA_Y_LEON", "CASTILLA_LA_MANCHA", "CATALUÑA", "VALENCIA", "EXTREMADURA", "GALICIA", "MADRID", "MURCIA", "NAVARRA", "EUSKADI", "RIOJA", "CEUTA", "MELILLA")
+  lista <- ccaa_en_libreria[match(columna_ccaa, ccaa_comunes)]
+  
+  porcentajes <- data.frame(
+    comunidad = lista,
+    porcentaje = proporciones
+  )
+  
+  
+  print(porcentajes)
+  
+  
+  mapa <- ccaa %>%
+    left_join(porcentajes, by = c("ine.ccaa.name" = "comunidad"))
+  
+  
   
   
   # Dibujar el mapa
   ggplot(mapa) +
-    geom_sf(aes(fill = cant), color = "white", linewidth = 0.3) +
+    geom_sf(aes(fill = porcentaje), color = "white", linewidth = 0.3) +
+    geom_sf_text(
+      aes(label = ifelse(
+        is.na(porcentaje),
+        "N/A",
+        paste0(round(porcentaje, 1), "%")
+      )),
+      size = 3,
+      fontface = "bold",
+      color = "black"
+    ) +
     scale_fill_gradient(
       low = "#CAE9FF",
       high = "#1B4965",
-      na.value = "grey90",
-      name = leyenda
+      na.value = "grey70",
+      name = leyenda,
+      limits = c(0, 100),
+      breaks = seq(0, 100, 20),
+      labels = function(x) paste0(x, "%")
     ) +
-    labs(title = paste("                                         ", titulo)) +
-    theme_void()
-  
-  
-  
+    labs(title = paste("               ", titulo)) +
+    theme_void() + theme(
+      plot.title = element_text(face = "bold", hjust = 0.5),
+      legend.position = c(0.1, 0.8)
+    )
+
 }
 
 ### Plot piechart 
@@ -73,7 +144,11 @@ plot_pie <- function(columna_nominal, label_leyenda, colores, titulo) {
       color = "black",
       fontface = "bold",
       size = 4
-    ) + scale_fill_manual(values=colores) + labs(fill = label_leyenda, title = titulo)
+    ) + scale_fill_manual(values=colores) + labs(fill = label_leyenda, title = titulo) +
+      theme(
+      plot.title = element_text(face = "bold", hjust = 0.5),
+      legend.position = "none"
+    )
   
 }
 
@@ -113,9 +188,11 @@ plot_heatmap <- function (columna_nominal1, columna_nominal2, columna_numerico, 
     ) +
     theme_minimal() +
     theme(
+      plot.title = element_text(face = "bold", hjust = 0.5),
+      legend.position = "none",
       axis.text.x = element_text(angle = 45, hjust = 1),
       panel.grid = element_blank()
-    )
+    )           
 
   
   
@@ -144,7 +221,8 @@ plot_heatmapNominal <- function (columna_nominal1, columna_nominal2, colores, ti
     ) %>%
     ungroup()
 
-  ggplot(dataset,
+
+  plot <- ggplot(dataset,
          aes(x = col1, y = col2,
              fill = porcentaje)) +
     geom_tile(color = "white") +
@@ -168,9 +246,28 @@ plot_heatmapNominal <- function (columna_nominal1, columna_nominal2, colores, ti
       x = labelX,
       y = labelY
     ) +
-    theme_minimal()
+    theme_minimal() + theme(
+      plot.title = element_text(face = "bold", hjust = 0.5),
+      legend.position = "none"
+    )
+
+  if (length(unique(columna_nominal1)) > 10 || length(unique(columna_nominal2)) > 10) {
+    plot <- plot + theme(
+      text = element_text(size = 9),
+      plot.title = element_text(size = 11),
+      axis.title = element_text(size = 8),
+      axis.text = element_text(size = 7) 
+    )
+  }
+    
 
   
+  
+  
+  
+    print(plot)
+  
+    return(dataset)
 }
   
 
@@ -204,7 +301,10 @@ plot_forest <- function (nombre_intervalos, estimacion, estimacion_inferior, est
       x = labelX,
       y = labelY
     ) +
-    theme_minimal() 
+    theme_minimal() + theme(
+      plot.title = element_text(face = "bold", hjust = 0.5),
+      legend.position = "none"
+    )
 }
 
 ### Plot scatterplot (nominal x numerico) 
@@ -219,6 +319,9 @@ plot_scatterNominal <- function (columna_nominal, columna_numerica, colores, tit
       title = titulo,            
       x = labelX,
       y = labelY,
+    ) + theme(
+      plot.title = element_text(face = "bold", hjust = 0.5),
+      legend.position = "none"
     )
   
   
@@ -256,6 +359,9 @@ plot_scatterNumerico <- function (columna_numerica1, columna_numerica2, titulo, 
     title = titulo,            
     x = labelX,
     y = labelY
+  ) + theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    legend.position = "none"
   )
   
   if (linea_de_regresion) {
@@ -277,17 +383,27 @@ plot_barSimple <- function (columna, colores, titulo, labelX, leyenda) {
     columna)
   
   if (is.numeric(dataset[[1]])) {
-    plot <- ggplot(data = dataset, mapping = aes(x = factor(columna))) + geom_bar(fill = colores, color = "white", width = 0.65) + scale_fill_manual(values=colores) + labs(title = titulo, x = labelX, y = "Cantidad") 
+    plot <- ggplot(data = dataset, mapping = aes(x = factor(columna))) + geom_bar(fill = colores, color = "white", width = 0.65) +
+          scale_fill_manual(values=colores) + labs(title = titulo, x = labelX, y = "Cantidad") +
+          theme(
+              plot.title = element_text(face = "bold", hjust = 0.5),
+              legend.position = "none"
+          )
     
   } else {
-    plot <- ggplot(data = dataset, mapping = aes(x = columna, fill = columna)) + geom_bar(width = 0.65) + scale_fill_manual(values=colores) + labs(title = titulo, x = labelX, y = "Cantidad", fill = leyenda)
+    plot <- ggplot(data = dataset, mapping = aes(x = columna, fill = columna)) + geom_bar(width = 0.65) + scale_fill_manual(values=colores) +
+            labs(title = titulo, x = labelX, y = "Cantidad", fill = leyenda) +
+            theme(
+              plot.title = element_text(face = "bold", hjust = 0.5),
+              legend.position = "none"
+            )
     
     if (length(unique(columna)) > 10) {
       plot <- plot + theme(
-        text = element_text(size = 9),
-        plot.title = element_text(size = 11),
-        axis.title = element_text(size = 8),
-        axis.text = element_text(size = 7)
+      text = element_text(size = 9),
+      plot.title = element_text(size = 11),
+      axis.title = element_text(size = 8),
+      axis.text = element_text(size = 7)
       )
     }
     
@@ -343,7 +459,10 @@ plot_barGroup <- function (columna_nominal, columna_grupal, colores, titulo, lab
       x = labelX,
       y = "Cantidad",
       fill = leyenda
-    )  
+    ) +
+    theme(
+      plot.title = element_text(face = "bold", hjust = 0.5)
+    )
 }
 
 ### Plot histograma
@@ -362,7 +481,11 @@ plot_hist <- function (columna_numerico, titulo, labelX, labelY, rangos, colores
       breaks = rangos,
       limits = range(rangos)
     ) + labs(title = titulo, x = labelX, y = labelY) +
-    theme_minimal(base_size = 13)  
+    theme_minimal(base_size = 13)  +
+    theme(
+      plot.title = element_text(face = "bold", hjust = 0.5),
+      legend.position = "none"
+    )
   
 }
 
@@ -413,7 +536,11 @@ plot_box <- function (columna_nominal, columna_numerico, titulo, labelX, labelY,
       title = titulo,            
       x = labelX,
       y = labelY
-    )
+    ) +
+      theme(
+        plot.title = element_text(face = "bold", hjust = 0.5),
+        legend.position = "none"
+      )
     
     
   } else {
@@ -421,7 +548,11 @@ plot_box <- function (columna_nominal, columna_numerico, titulo, labelX, labelY,
       title = titulo,            
       x = labelX,
       y = labelY
-    )
+    ) +
+     theme(
+        plot.title = element_text(face = "bold", hjust = 0.5),
+        legend.position = "none"
+      )
     
   }
   
