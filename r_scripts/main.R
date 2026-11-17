@@ -8,7 +8,6 @@ df_empresas <- importar_df_empresas()
 view(df_empresas)
 
 
-
 # Overview de los datos
 
 
@@ -183,12 +182,9 @@ datos <- data.frame(df_empresas$Valoracion, df_empresas$Financiacion)
 
   
   
-
+  set.seed(2) # fijar la seed para que el kmeans dé el mismo resultado y no cambie el mappeo de clusters
   clusters = realizar_Kmeans(datos, nombres, 3, "Clústering de empresas según financiación total (€) y valoración (€) | k = 3\n(Filtrando Serie C y D)")
   
- # clusters[clusters == 1] <- 4
-#  clusters[clusters == 2] <- 1
-#  clusters[clusters == 4] <- 2
   
   # heatmap
   plot_heatmapNominal(clusters, etiquetas, rev(colores5), "Correlación entre clústers y madurez financiera", "Cluster", "Madurez financiera")
@@ -405,7 +401,7 @@ datos <- data.frame(df_empresas$Financiacion, df_empresas$Rondas_De_Financiacion
   #chi cuadrada
   realizar_chicuadrada(datos[1],datos[2])
   
-  # mapa españa
+  # mapa geografico
   proporciones <- plot_heatmapNominal(df_empresas$CCAA, df_empresas$Es_Acquired, rev(colores5), "Correlación entre madurez empresarial y ser adquirido", "Madurez empresarial", "Fue adquirido") 
   proporciones <- proporciones[10:18, ]
 
