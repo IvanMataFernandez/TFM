@@ -1,6 +1,6 @@
-source("r_scripts/plots.R")
-source("r_scripts/models.R")
-source("r_scripts/data_importer.R")
+source("r_scripts/Plots.R")
+source("r_scripts/Models.R")
+source("r_scripts/Data_importer.R")
 
 # importar dataset
 
@@ -25,15 +25,15 @@ colores_arbol <- c("#F08080", "#F77F00", "#2A9D8F", "#277DA1")
   
   table(df_empresas$Año_Fundacion)
  
-   #CCAA
-  plot_mapa(df_empresas$CCAA, "Nº Empresas por comunidad autónoma", "Nº\nEmpresas")
+   #CA
+  plot_mapa(df_empresas$CA, "Nº Empresas por comunidad autónoma", "Nº\nEmpresas")
   
-  table(df_empresas$CCAA)
+  table(df_empresas$CA)
 
   #Industria
-  plot_barSimple(df_empresas$Industria, colores20, "Industria secundaria (Primaria es Software)", "Industria", "Industria")
+  plot_barSimple(df_empresas$Industria_Secundaria, colores20, "Industria secundaria (Primaria es Software)", "Industria", "Industria")
 
-  table(df_empresas$Industria)
+  table(df_empresas$Industria_Secundaria)
   
   #Empleados
   datos <- data.frame(df_empresas$Empleados)
@@ -57,9 +57,9 @@ colores_arbol <- c("#F08080", "#F77F00", "#2A9D8F", "#277DA1")
   table(df_empresas$Madurez_Financiera)
   
   #Es_Acquired
-  plot_pie(df_empresas$Es_Acquired, "Adquirida", colores2, "Adquisición de empresas") 
+  plot_pie(df_empresas$Fue_Adquirido, "Adquirida", colores2, "Adquisición de empresas") 
   
-  table(df_empresas$Es_Acquired)
+  table(df_empresas$Fue_Adquirido)
   
   #Es_Spinout
   plot_pie(df_empresas$Es_Spinout, "Spin-out", colores2, "Empresas spin-out") 
@@ -216,7 +216,8 @@ datos <- data.frame(df_empresas$Valoracion, df_empresas$Ingresos)
   
   
 
-# H4: Las empresas con mayor madurez empresarial y/o financiera presentan una mayor valoración económica. 
+# H4: Las empresas con mayor madurez empresarial y/o financiera presentan una mayor valoración económica.
+  # (Si la documentacion es muy larga, quitar esta hipotesis pq es la mas redundante)
   
   # Kruskal/ANOVA por cada par
   analisis_comparativo(df_empresas$Valoracion, df_empresas$Madurez_Financiera)
@@ -234,7 +235,7 @@ datos <- data.frame(df_empresas$Valoracion, df_empresas$Ingresos)
   
 # H5: Características empresariales (empleados, spinout, acquired) afecta a la madurez financiera 
 
-datos <- data.frame(df_empresas$Madurez_Financiera, df_empresas$Empleados, df_empresas$Es_Spinout, df_empresas$Es_Acquired) 
+datos <- data.frame(df_empresas$Madurez_Financiera, df_empresas$Empleados, df_empresas$Es_Spinout, df_empresas$Fue_Adquirido) 
 
 
   # regresion lineal
@@ -374,7 +375,7 @@ datos <- data.frame(df_empresas$Financiacion, df_empresas$Rondas_De_Financiacion
 # H8: Las empresas adquiridas presentan diferencias en cantidad de empleados respecto a las no adquiridas
 
 
-  datos <- data.frame(df_empresas$Empleados, df_empresas$Es_Acquired) 
+  datos <- data.frame(df_empresas$Empleados, df_empresas$Fue_Adquirido) 
   
   
   # t-test/whitney
@@ -392,27 +393,27 @@ datos <- data.frame(df_empresas$Financiacion, df_empresas$Rondas_De_Financiacion
   
   
   
-# H9: Ciertas CCAA estan asociadas con una mayor probabilidad de adquisición.
+# H9: Ciertas CA estan asociadas con una mayor probabilidad de adquisición.
   
 
-  datos <- data.frame(df_empresas$Es_Acquired, df_empresas$CCAA) 
+  datos <- data.frame(df_empresas$Fue_Adquirido, df_empresas$CA) 
   names(datos) <- c("Fue adquirido", "Comunidad autónoma")
   
   #chi cuadrada
   realizar_chicuadrada(datos[1],datos[2])
   
   # mapa geografico
-  proporciones <- plot_heatmapNominal(df_empresas$CCAA, df_empresas$Es_Acquired, rev(colores5), "Correlación entre madurez empresarial y ser adquirido", "Madurez empresarial", "Fue adquirido") 
+  proporciones <- plot_heatmapNominal(df_empresas$CA, df_empresas$Fue_Adquirido, rev(colores5), "Correlación entre madurez empresarial y ser adquirido", "Madurez empresarial", "Fue adquirido") 
   proporciones <- proporciones[10:18, ]
 
   plot_mapa_proporciones(proporciones$col1, proporciones$porcentaje, "Proporción de start-ups adquiridas por comunidad autónoma", "Porcentaje\nadquiridas")
-  plot_pie(df_empresas$Es_Acquired, "Adquirida", colores2, "Adquisición de empresas") 
+  plot_pie(df_empresas$Fue_Adquirido, "Adquirida", colores2, "Adquisición de empresas") 
   
   
   
 # H10: Los sectores de actividad y localidades están correlacionados
 
-datos <- data.frame(df_empresas$Industria, df_empresas$CCAA) 
+datos <- data.frame(df_empresas$Industria_Secundaria, df_empresas$CA) 
 names(datos) <- c("Industria", "Comunidad autónoma")
 
 
@@ -431,14 +432,14 @@ names(datos) <- c("Industria", "Comunidad autónoma")
 
 # H11: Existen diferencias en la financiación entre comunidades autónomas o sectores.
 
-datos <- data.frame(df_empresas$Financiacion, df_empresas$CCAA, df_empresas$Industria) 
+datos <- data.frame(df_empresas$Financiacion, df_empresas$CA, df_empresas$Industria_Secundaria) 
 
   
 
 
   # KURKAL / ANOVA
-  analisis_comparativo(df_empresas$Financiacion, df_empresas$CCAA)
-  analisis_comparativo(df_empresas$Financiacion, df_empresas$Industria)
+  analisis_comparativo(df_empresas$Financiacion, df_empresas$CA)
+  analisis_comparativo(df_empresas$Financiacion, df_empresas$Industria_Secundaria)
 
   # regresion lineal
   

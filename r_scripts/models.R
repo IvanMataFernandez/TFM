@@ -15,29 +15,29 @@ library("ordinal")
 
 
 #source("plots.R")
-source("r_scripts/data_importer.R")
+source("r_scripts/Data_importer.R")
 
 ##################################################################################
 ############################## FUNCTIONS #########################################
 ##################################################################################
 
 
-estadisticos_cuantitativo <- function (x) {
+estadisticos_cuantitativo <- function (columna) {
   estadisticos <- c(
-    Media = mean(x),
-    Moda = if (length(x) == 0 || all(is.na(x))) NA else {
-      frecuencias <- table(x)
+    Media = mean(columna),
+    Moda = if (length(columna) == 0 || all(is.na(columna))) NA else {
+      frecuencias <- table(columna)
       as.numeric(names(frecuencias)[frecuencias == max(frecuencias)])
     },
 
-    Desviacion_estandar = sd(x),
-    Varianza = var(x),
-    Minimo = min(x),
-    Maximo = max(x),
-    Q1 = unname(quantile(x, 0.25)),
-    Mediana = median(x),
-    Q3 = unname(quantile(x, 0.75)),
-    IQR = IQR(x)
+    Desviacion_estandar = sd(columna),
+    Varianza = var(columna),
+    Minimo = min(columna),
+    Maximo = max(columna),
+    Q1 = unname(quantile(columna, 0.25)),
+    Mediana = median(columna),
+    Q3 = unname(quantile(columna, 0.75)),
+    IQR = IQR(columna)
   )
   
   print(estadisticos)
@@ -170,66 +170,7 @@ realizar_correlation_test <- function (col_numerica1, col_numerica2, tipo) {
   
 }
 
-realizar_fisher <- function (col_categorica1, col_categorica2) {
-  muestra <- table(col_categorica1, col_categorica2)
-  test <- fisher.test(muestra)
-  print(test)
-  
-  # Frecuencias esperadas bajo independencia
-  esperadas <- outer(
-    rowSums(muestra),
-    colSums(muestra)
-  ) / sum(muestra)
-  
-  # Residuos de Pearson
-  residuos <- (muestra - esperadas) / sqrt(esperadas)
-  
-  # Preparar datos para heatmap
-  datos_heatmap <- as.data.frame(muestra)
-  
-  datos_heatmap$Residuo <- as.vector(residuos)
-  
-  grafico <- ggplot(
-    datos_heatmap,
-    aes(
-      x = col_categorica2,
-      y = col_categorica1,
-      fill = Residuo
-    )
-  ) +
-    geom_tile(color = "white", linewidth = 1) +
-    geom_text(
-      aes(label = round(Residuo, 2)),
-      size = 5
-    ) +
-    scale_fill_gradient2(
-      low = "blue",
-      mid = "white",
-      high = "red",
-      midpoint = 0
-    ) +
-    labs(
-      title = "Asociación entre variables categóricas",
-      subtitle = paste("Test exacto de Fisher | p-value:", 
-                       signif(test$p.value, 3)),
-      x = "Variable 2",
-      y = "Variable 1",
-      fill = "Residuo \nde Pearson"
-    ) +
-    theme_minimal() + 
-    theme(
-      plot.title = element_text(
-        hjust = 0.5,
-        face = "bold"
-      )
-    )
-  
-  print(grafico)
-  print(muestra)
-  
-  
-  
-}
+
 
 
 realizar_chicuadrada <- function (col_categorica1, col_categorica2) {
@@ -566,8 +507,68 @@ realizar_Kmeans <- function (df_kmeans_data, nombres, k, titulo) {
 
 }
 
+#### UNUSED ################################
 
-
+realizar_fisher <- function (col_categorica1, col_categorica2) {
+  muestra <- table(col_categorica1, col_categorica2)
+  test <- fisher.test(muestra)
+  print(test)
+  
+  # Frecuencias esperadas bajo independencia
+  esperadas <- outer(
+    rowSums(muestra),
+    colSums(muestra)
+  ) / sum(muestra)
+  
+  # Residuos de Pearson
+  residuos <- (muestra - esperadas) / sqrt(esperadas)
+  
+  # Preparar datos para heatmap
+  datos_heatmap <- as.data.frame(muestra)
+  
+  datos_heatmap$Residuo <- as.vector(residuos)
+  
+  grafico <- ggplot(
+    datos_heatmap,
+    aes(
+      x = col_categorica2,
+      y = col_categorica1,
+      fill = Residuo
+    )
+  ) +
+    geom_tile(color = "white", linewidth = 1) +
+    geom_text(
+      aes(label = round(Residuo, 2)),
+      size = 5
+    ) +
+    scale_fill_gradient2(
+      low = "blue",
+      mid = "white",
+      high = "red",
+      midpoint = 0
+    ) +
+    labs(
+      title = "Asociación entre variables categóricas",
+      subtitle = paste("Test exacto de Fisher | p-value:", 
+                       signif(test$p.value, 3)),
+      x = "Variable 2",
+      y = "Variable 1",
+      fill = "Residuo \nde Pearson"
+    ) +
+    theme_minimal() + 
+    theme(
+      plot.title = element_text(
+        hjust = 0.5,
+        face = "bold"
+      )
+    )
+  
+  print(grafico)
+  print(muestra)
+  
+  
+  
+}
 
 
 

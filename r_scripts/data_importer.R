@@ -52,9 +52,9 @@ importar_df_empresas <- function () {
   df$MADUREZ_FINANCIERA <- factor(df$MADUREZ_FINANCIERA, ordered = TRUE, levels = label_list, labels = label_list)
   
   label_list <- c("NO", "SI")
-  df$ES_ACQUIRED <- factor(df$ES_ACQUIRED, ordered = FALSE, levels = label_list, labels = label_list)
+  df$FUE_ADQUIRIDO <- factor(df$FUE_ADQUIRIDO, ordered = FALSE, levels = label_list, labels = label_list)
   df$ES_SPINOUT <- factor(df$ES_SPINOUT, ordered = FALSE, levels = label_list, labels = label_list)
-  df$SERIAL_FOUNDER <- factor(df$SERIAL_FOUNDER, ordered = FALSE, levels = label_list, labels = label_list)
+  df$FUNDADOR_EN_SERIE <- factor(df$FUNDADOR_EN_SERIE, ordered = FALSE, levels = label_list, labels = label_list)
   # df$IT_OR_TECH <- factor(df$IT_OR_TECH, ordered = FALSE, levels = label_list, labels = label_list)
   
   label_list <- c("NO_RELACIONADOS", "SOLO_TECH", "IT_&_TECH")
@@ -67,26 +67,26 @@ importar_df_empresas <- function () {
   df$N_EMPLEADOS <- as.integer(df$N_EMPLEADOS)
   df$VALORACION <- as.integer(df$VALORACION)
   df$INGRESOS <- as.integer(df$INGRESOS)
-  df$PN <- as.integer(df$PN)
+  df$FINANCIACION <- as.integer(df$FINANCIACION)
   df$RONDAS_DE_FINANCIACION <- as.integer(df$RONDAS_DE_FINANCIACION)
   
   
-  df$INDUSTRIA[df$INDUSTRIA == "JOB_RECRUITMENT"] <- "JOB_REC."
-  df$INDUSTRIA[df$INDUSTRIA == "SEMICONDUCTORS"] <- "SEMICOND."
-  df$INDUSTRIA[df$INDUSTRIA == "TRANSPORTATION"] <- "TRANSP."
-  df$INDUSTRIA[df$INDUSTRIA == "HOME_LIVING"] <- "HOME_LIFE"
+  df$INDUSTRIA_SECUNDARIA[df$INDUSTRIA_SECUNDARIA == "JOB_RECRUITMENT"] <- "JOB_REC."
+  df$INDUSTRIA_SECUNDARIA[df$INDUSTRIA_SECUNDARIA == "SEMICONDUCTORS"] <- "SEMICOND."
+  df$INDUSTRIA_SECUNDARIA[df$INDUSTRIA_SECUNDARIA == "TRANSPORTATION"] <- "TRANSP."
+  df$INDUSTRIA_SECUNDARIA[df$INDUSTRIA_SECUNDARIA == "HOME_LIVING"] <- "HOME_LIFE"
 
 
   
   
-  names(df) <- c("Nombre", "Año_Fundacion", "CCAA", "Industria", "Empleados","Madurez_Empresarial" ,"Madurez_Financiera", "Es_Acquired", "Es_Spinout", "Valoracion", "Ingresos", "Financiacion", "Rondas_De_Financiacion", "Fundador_En_Serie", "Fundador_Estudios", "Fundador_Edad") 
+  names(df) <- c("Nombre", "Año_Fundacion", "CA", "Industria_Secundaria", "Empleados","Madurez_Empresarial" ,"Madurez_Financiera", "Fue_Adquirido", "Es_Spinout", "Valoracion", "Ingresos", "Financiacion", "Rondas_De_Financiacion", "Fundador_En_Serie", "Fundador_Estudios", "Fundador_Edad") 
   
   return(df)
   
 
 }
 
-
+######## UNUSED ###############
 
 importar_df_prueba <- function () {
   

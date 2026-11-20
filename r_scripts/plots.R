@@ -3,7 +3,7 @@ library("dplyr")
 library("tidyverse")
 library("mapSpain")
 
-source("r_scripts/data_importer.R")
+source("r_scripts/Data_importer.R")
 
 ##################################################################################
 ############################## FUNCTIONS #########################################
@@ -152,52 +152,7 @@ plot_pie <- function(columna_nominal, label_leyenda, colores, titulo) {
   
 }
 
-### Plot heatmap 
 
-plot_heatmap <- function (columna_nominal1, columna_nominal2, columna_numerico, nombre_escala, titulo, subtitulo, labelX, labelY) {
-  
-  
-  dataset <- data.frame(columna_nominal1, columna_nominal2, columna_numerico)
-
-  df <- dataset %>% 
-    group_by(columna_nominal1, columna_nominal2) %>% 
-    summarise(
-      numerico_medio = mean(columna_numerico, na.rm = TRUE), 
-      N = sum(!is.na(columna_numerico)),
-      .groups = "drop"
-    )
-  
-  
-  ggplot(df,
-         aes(x = columna_nominal2,
-             y = columna_nominal1,
-             fill = numerico_medio)) +
-    geom_tile(color = "white", linewidth = 0.3) +
-    geom_text(aes(label = round(numerico_medio, 2)), size = 3) +
-    scale_fill_gradient(
-      low = "red",
-      high = "green",
-      name = nombre_escala,
-      na.value = "grey90"
-    ) +
-    labs(
-      title = titulo,             # Renombrar texto explicativo here
-      subtitle = subtitulo,
-      x = labelX,
-      y = labelY
-    ) +
-    theme_minimal() +
-    theme(
-      plot.title = element_text(face = "bold", hjust = 0.5),
-      legend.position = "none",
-      axis.text.x = element_text(angle = 45, hjust = 1),
-      panel.grid = element_blank()
-    )           
-
-  
-  
-  
-}
 
 ### Plot heatmap (nominal x nominal)
 plot_heatmapNominal <- function (columna_nominal1, columna_nominal2, colores, titulo, labelX, labelY) {
@@ -271,41 +226,6 @@ plot_heatmapNominal <- function (columna_nominal1, columna_nominal2, colores, ti
 }
   
 
-
-### Plot forestchart 
-
-plot_forest <- function (nombre_intervalos, estimacion, estimacion_inferior, estimacion_superior, titulo, labelX, labelY) {
- 
-  
-  resultados <- data.frame(
-    Variable = nombre_intervalos,
-    Estimacion = estimacion,  
-    IC_inferior = estimacion_inferior,
-    IC_superior = estimacion_superior
-  )
-  
-  
-   ggplot(resultados,
-         aes(x = Estimacion, y = Variable)) +
-    geom_vline(xintercept = 1,
-               linetype = "dashed",
-               color = "red") +
-    geom_errorbar(
-      aes(xmin = IC_inferior,
-          xmax = IC_superior),
-      width = 0.2
-    ) +
-    geom_point(size = 3, color = "steelblue") +
-    labs(
-      title = titulo,              
-      x = labelX,
-      y = labelY
-    ) +
-    theme_minimal() + theme(
-      plot.title = element_text(face = "bold", hjust = 0.5),
-      legend.position = "none"
-    )
-}
 
 ### Plot scatterplot (nominal x numerico) 
 
@@ -465,29 +385,7 @@ plot_barGroup <- function (columna_nominal, columna_grupal, colores, titulo, lab
     )
 }
 
-### Plot histograma
 
-plot_hist <- function (columna_numerico, titulo, labelX, labelY, rangos, colores) {
-  dataset <- data.frame(
-    columna_numerico) 
-  
-  
-  ggplot(data = dataset, mapping = aes(x = columna_numerico)) +  geom_histogram(
-    breaks = rangos,
-    fill = colores,
-    color = "black"
-  ) +
-    scale_x_continuous(
-      breaks = rangos,
-      limits = range(rangos)
-    ) + labs(title = titulo, x = labelX, y = labelY) +
-    theme_minimal(base_size = 13)  +
-    theme(
-      plot.title = element_text(face = "bold", hjust = 0.5),
-      legend.position = "none"
-    )
-  
-}
 
 ### Plot como los valores de una var numerica van aumentando en el tiempo
 
@@ -558,13 +456,119 @@ plot_box <- function (columna_nominal, columna_numerico, titulo, labelX, labelY,
   
   
 }
+######## UNUSED ###############
+
+
+### Plot forestchart 
+
+plot_forest <- function (nombre_intervalos, estimacion, estimacion_inferior, estimacion_superior, titulo, labelX, labelY) {
+  
+  
+  resultados <- data.frame(
+    Variable = nombre_intervalos,
+    Estimacion = estimacion,  
+    IC_inferior = estimacion_inferior,
+    IC_superior = estimacion_superior
+  )
+  
+  
+  ggplot(resultados,
+         aes(x = Estimacion, y = Variable)) +
+    geom_vline(xintercept = 1,
+               linetype = "dashed",
+               color = "red") +
+    geom_errorbar(
+      aes(xmin = IC_inferior,
+          xmax = IC_superior),
+      width = 0.2
+    ) +
+    geom_point(size = 3, color = "steelblue") +
+    labs(
+      title = titulo,              
+      x = labelX,
+      y = labelY
+    ) +
+    theme_minimal() + theme(
+      plot.title = element_text(face = "bold", hjust = 0.5),
+      legend.position = "none"
+    )
+}
 
 
 
 
 
 
+### Plot heatmap 
 
+plot_heatmap <- function (columna_nominal1, columna_nominal2, columna_numerico, nombre_escala, titulo, subtitulo, labelX, labelY) {
+  
+  
+  dataset <- data.frame(columna_nominal1, columna_nominal2, columna_numerico)
+  
+  df <- dataset %>% 
+    group_by(columna_nominal1, columna_nominal2) %>% 
+    summarise(
+      numerico_medio = mean(columna_numerico, na.rm = TRUE), 
+      N = sum(!is.na(columna_numerico)),
+      .groups = "drop"
+    )
+  
+  
+  ggplot(df,
+         aes(x = columna_nominal2,
+             y = columna_nominal1,
+             fill = numerico_medio)) +
+    geom_tile(color = "white", linewidth = 0.3) +
+    geom_text(aes(label = round(numerico_medio, 2)), size = 3) +
+    scale_fill_gradient(
+      low = "red",
+      high = "green",
+      name = nombre_escala,
+      na.value = "grey90"
+    ) +
+    labs(
+      title = titulo,             # Renombrar texto explicativo here
+      subtitle = subtitulo,
+      x = labelX,
+      y = labelY
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(face = "bold", hjust = 0.5),
+      legend.position = "none",
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      panel.grid = element_blank()
+    )           
+  
+  
+  
+  
+}
+
+### Plot histograma
+
+plot_hist <- function (columna_numerico, titulo, labelX, labelY, rangos, colores) {
+  dataset <- data.frame(
+    columna_numerico) 
+  
+  
+  ggplot(data = dataset, mapping = aes(x = columna_numerico)) +  geom_histogram(
+    breaks = rangos,
+    fill = colores,
+    color = "black"
+  ) +
+    scale_x_continuous(
+      breaks = rangos,
+      limits = range(rangos)
+    ) + labs(title = titulo, x = labelX, y = labelY) +
+    theme_minimal(base_size = 13)  +
+    theme(
+      plot.title = element_text(face = "bold", hjust = 0.5),
+      legend.position = "none"
+    )
+  
+}
 
 ##################################################################################
 ###################################### MAIN ######################################
