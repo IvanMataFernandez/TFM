@@ -433,13 +433,18 @@ names(datos) <- c("Industria", "Comunidad autónoma")
 # H11: Existen diferencias en la financiación entre comunidades autónomas o sectores.
 
 datos <- data.frame(df_empresas$Financiacion, df_empresas$CA, df_empresas$Industria_Secundaria) 
-
-  
-
+names(datos) <- c("Financiacion", "CA", "Industria_Secundaria")
+datos$CA <- ifelse(
+  datos$CA %in% c("MADRID", "CATALUÑA", "EUSKADI", "VALENCIA"),
+  as.character(datos$CA),
+  "Otros"
+)
 
   # KURKAL / ANOVA
   analisis_comparativo(df_empresas$Financiacion, df_empresas$CA)
   analisis_comparativo(df_empresas$Financiacion, df_empresas$Industria_Secundaria)
+
+  analisis_comparativo(datos$Financiacion, datos$CA)
 
   # regresion lineal
   
