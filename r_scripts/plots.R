@@ -304,19 +304,47 @@ plot_barSimple <- function (columna, colores, titulo, labelX, leyenda) {
   
   if (is.numeric(dataset[[1]])) {
     plot <- ggplot(data = dataset, mapping = aes(x = factor(columna))) + geom_bar(fill = colores, color = "white", width = 0.65) +
-          scale_fill_manual(values=colores) + labs(title = titulo, x = labelX, y = "Cantidad") +
-          theme(
-              plot.title = element_text(face = "bold", hjust = 0.5),
-              legend.position = "none"
-          )
-    
+            geom_text(
+              stat = "count",
+              aes(
+                label = paste0(
+                  after_stat(count),
+                  " (",
+                  round(after_stat(count / sum(count) * 100), 1),
+                  "%)"
+                )
+              ),
+              vjust = -0.5,
+              size = 3.5
+            ) +  
+            scale_fill_manual(values=colores) + labs(title = titulo, x = labelX, y = "Cantidad") +
+                theme(
+                    plot.title = element_text(face = "bold", hjust = 0.5),
+                    legend.position = "none"
+                )
+          
   } else {
     plot <- ggplot(data = dataset, mapping = aes(x = columna, fill = columna)) + geom_bar(width = 0.65) + scale_fill_manual(values=colores) +
-            labs(title = titulo, x = labelX, y = "Cantidad", fill = leyenda) +
+            geom_text(
+              stat = "count",
+              aes(
+                label = paste0(
+                  after_stat(count),
+                  " (",
+                  round(after_stat(count / sum(count) * 100), 1),
+                  "%)"
+                )
+              ),
+              vjust = -0.5,
+              size = 3.5
+            ) + labs(title = titulo, x = labelX, y = "Cantidad", fill = leyenda) +
             theme(
               plot.title = element_text(face = "bold", hjust = 0.5),
               legend.position = "none"
-            )
+            )  
+            
+      
+
     
     if (length(unique(columna)) > 10) {
       plot <- plot + theme(

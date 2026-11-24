@@ -151,12 +151,18 @@ colores_arbol <- c("#F08080", "#F77F00", "#2A9D8F", "#277DA1")
 
 datos <- data.frame(df_empresas$Valoracion, df_empresas$Financiacion) 
 
-  # Pearson
+  # Pearson / Spearman
+
+  shapiro.test(df_empresas$Valoracion) # No normal, usar spearman
+  shapiro.test(df_empresas$Financiacion) # No normal, usar spearman
+  
   realizar_correlation_test(df_empresas$Valoracion, df_empresas$Financiacion, "pearson")
+  realizar_correlation_test(df_empresas$Valoracion, df_empresas$Financiacion, "spearman")
   
   names(datos) <- c("Valoración", "Financiación")
   realizar_correlation_matrix(datos, "pearson")
-
+  realizar_correlation_matrix(datos, "spearman")
+  
   # KMeans
   cantidad_clusters_Kmeans(datos)
   
@@ -201,12 +207,19 @@ datos <- data.frame(df_empresas$Valoracion, df_empresas$Financiacion)
   
 datos <- data.frame(df_empresas$Valoracion, df_empresas$Ingresos) 
 
-  # Pearson
-  realizar_correlation_test(df_empresas$Valoracion, df_empresas$Ingresos, "pearson")
+  # Pearson / Spearman
+
+  shapiro.test(df_empresas$Valoracion) # no normal, usar spearman
+  shapiro.test(df_empresas$Ingresos) # no normal, usar spearman
+  
+
+  realizar_correlation_test(df_empresas$Valoracion, df_empresas$Ingresos, "pearson") 
+  realizar_correlation_test(df_empresas$Valoracion, df_empresas$Ingresos, "spearman")
   
   names(datos) <- c("Valoración", "Ingresos")
   realizar_correlation_matrix(datos, "pearson")
-
+  realizar_correlation_matrix(datos, "spearman")
+  
   # Scatterplot
   plot_scatterNumerico(datos[[1]], datos[[2]], "Correlación entre valoración e ingresos", "Valoración (€)", "Ingresos (€)", TRUE)
 
@@ -275,12 +288,20 @@ datos <- data.frame(df_empresas$Financiacion, df_empresas$Rondas_De_Financiacion
   plot_scatterNumerico(datos[[1]], datos[[3]], "Correlación entre financiación y año de fundación", "Financiación total (€)", "Año de fundación", TRUE) # No correlacion
   
 
-  # Pearson
+  # Pearson / spearman
+  shapiro.test(datos[[1]]) # no normal, usar spearman
+  shapiro.test(datos[[2]])# no normal, usar spearman
+  shapiro.test(datos[[3]])# no normal, usar spearman
+  
   realizar_correlation_test(datos[[1]], datos[[2]], "pearson")
   realizar_correlation_test(datos[[1]], datos[[3]], "pearson")
   
+  realizar_correlation_test(datos[[1]], datos[[2]], "spearman")
+  realizar_correlation_test(datos[[1]], datos[[3]], "spearman")
+  
   names(datos) <- c("Financiacion", "Nº rondas", "Año fundación")
   realizar_correlation_matrix(datos, "pearson")
+  realizar_correlation_matrix(datos, "spearman")
 
 
 
