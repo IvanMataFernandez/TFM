@@ -17,7 +17,7 @@ importar_df_empresas <- function () {
   # Combinar columnas Fundador_En_IT & Fundador_En_Tech
   df <- df %>%
     mutate(FUNDADOR_ESTUDIOS = case_when(
-      FUNDADOR_EN_IT == "SI" & FUNDADOR_EN_TECH == "SI" ~ "NO_RELACIONADOS",
+      FUNDADOR_EN_IT == "SI" & FUNDADOR_EN_TECH == "SI" ~ "NINGUNO",
    #   FUNDADOR_EN_IT == "SI" & FUNDADOR_EN_TECH == "NO" ~ "INFORMÁTICA",   <- ninguna instancia cumple con esto, redundant
       FUNDADOR_EN_IT == "NO" & FUNDADOR_EN_TECH == "SI" ~ "SOLO_TECH",
       FUNDADOR_EN_IT == "NO" & FUNDADOR_EN_TECH == "NO" ~ "IT_&_TECH"
@@ -57,7 +57,7 @@ importar_df_empresas <- function () {
   df$FUNDADOR_EN_SERIE <- factor(df$FUNDADOR_EN_SERIE, ordered = FALSE, levels = label_list, labels = label_list)
   # df$IT_OR_TECH <- factor(df$IT_OR_TECH, ordered = FALSE, levels = label_list, labels = label_list)
   
-  label_list <- c("NO_RELACIONADOS", "SOLO_TECH", "IT_&_TECH")
+  label_list <- c("NINGUNO", "SOLO_TECH", "IT_&_TECH")
   df$FUNDADOR_ESTUDIOS <- factor(df$FUNDADOR_ESTUDIOS, ordered = FALSE, levels = label_list, labels = label_list)
   
   label_list <- c("<35", "35-45", ">45")

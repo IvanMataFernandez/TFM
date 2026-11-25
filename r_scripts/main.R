@@ -7,13 +7,13 @@ source("r_scripts/Data_importer.R")
 df_empresas <- importar_df_empresas()
 view(df_empresas)
 
-
 # Overview de los datos
 
 
 colores2 <- c("#1B4965", "#CAE9FF")
 colores3 <- c("#1B4965", "#61A5C2", "#CAE9FF")
 colores4 <- c("#1B4965", "#2C7DA0", "#61A5C2", "#A9D6E5")
+colores4_2 <-c("#2166AC", "#D6604D", "#1B9E77",  "#984EA3")
 colores5 <- c("#1B4965", "#2C7DA0", "#61A5C2", "#A9D6E5", "#CAE9FF")
 colores6 <- c("#1B4965", "#2C7DA0", "#61A5C2", "#89C2D9","#A9D6E5", "#CAE9FF")
 colores20 <- c("#264653", "#287271", "#2A9D8F", "#52B69A", "#76C893", "#99D98C", "#B5E48C", "#E9C46A", "#F4A261", "#E76F51", "#D1495B", "#A53860", "#774C60", "#6D597A", "#765D9B", "#8E7DBE", "#577590", "#457B9D", "#1D6996", "#4C9FAD")
@@ -21,7 +21,7 @@ colores20 <- c("#264653", "#287271", "#2A9D8F", "#52B69A", "#76C893", "#99D98C",
 colores_arbol <- c("#F08080", "#F77F00", "#2A9D8F", "#277DA1")
 
   #Año fundacion
-  plot_barSimple(df_empresas$Año_Fundacion, colores6, "Año de fundación de start-up", "Año", "...")
+  plot_barSimple(df_empresas$Año_Fundacion, colores6, "Año de fundación de startup", "Año", "...")
   
   table(df_empresas$Año_Fundacion)
  
@@ -62,7 +62,7 @@ colores_arbol <- c("#F08080", "#F77F00", "#2A9D8F", "#277DA1")
   table(df_empresas$Fue_Adquirido)
   
   #Es_Spinout
-  plot_pie(df_empresas$Es_Spinout, "Spin-out", colores2, "Empresas spin-out") 
+  plot_pie(df_empresas$Es_Spinout, "Spin-out", colores2, "Empresas derivadas") 
   
   table(df_empresas$Es_Spinout)
   
@@ -96,14 +96,13 @@ colores_arbol <- c("#F08080", "#F77F00", "#2A9D8F", "#277DA1")
   plot_2D (datos[[1]], "Financiación de empresas en equity", "Financiación total (€)")
   
   datos <- datos %>%
-    filter(df_empresas.Financiacion <= 1000000)
+    filter(df_empresas.Financiacion <= 10000000)
   
-  plot_2D (datos[[1]], "Financiación de empresas en equity\n(Filtrado Financiación < 1M €)", "Financiación total (€)")
+  plot_2D (datos[[1]], "Financiación de empresas en equity\n(Filtrado Financiación < 10M €)", "Financiación total (€)")
   
   estadisticos_cuantitativo(df_empresas$Financiacion)  
   
-  
-  
+
   # Num Rondas
   plot_2D (df_empresas$Rondas_De_Financiacion, "Cantidad de rondas de financiación en empresas", "Nº de rondas")
   
@@ -136,10 +135,10 @@ colores_arbol <- c("#F08080", "#F77F00", "#2A9D8F", "#277DA1")
 
   #box plot
   plot_box(df_empresas$Madurez_Financiera, df_empresas$Financiacion, 
-           "Boxplot: Financiacion vs Madurez Financiera", "Madurez financiera", "Financiación total (€)", colores4, TRUE)
+           "Boxplot: Financiación vs. Madurez Financiera", "Madurez financiera", "Financiación total (€)", colores4, TRUE)
     
   plot_box(df_empresas$Madurez_Empresarial, df_empresas$Financiacion, 
-           "Boxplot: Financiacion vs Madurez Empresarial", "Madurez empresarial", "Financiación total (€)", colores3, TRUE)
+           "Boxplot: Financiación vs. Madurez Empresarial", "Madurez empresarial", "Financiación total (€)", colores3, TRUE)
 
   
   # MCA
@@ -156,11 +155,11 @@ datos <- data.frame(df_empresas$Valoracion, df_empresas$Financiacion)
   shapiro.test(df_empresas$Valoracion) # No normal, usar spearman
   shapiro.test(df_empresas$Financiacion) # No normal, usar spearman
   
-  realizar_correlation_test(df_empresas$Valoracion, df_empresas$Financiacion, "pearson")
+ # realizar_correlation_test(df_empresas$Valoracion, df_empresas$Financiacion, "pearson")
   realizar_correlation_test(df_empresas$Valoracion, df_empresas$Financiacion, "spearman")
   
   names(datos) <- c("Valoración", "Financiación")
-  realizar_correlation_matrix(datos, "pearson")
+#  realizar_correlation_matrix(datos, "pearson")
   realizar_correlation_matrix(datos, "spearman")
   
   # KMeans
@@ -188,9 +187,14 @@ datos <- data.frame(df_empresas$Valoracion, df_empresas$Financiacion)
 
   
   
-  set.seed(2) # fijar la seed para que el kmeans dé el mismo resultado y no cambie el mappeo de clusters
-  clusters = realizar_Kmeans(datos, nombres, 3, "Clústering de empresas según financiación total (€) y valoración (€) | k = 3\n(Filtrando Serie C y D)")
-  
+  set.seed(12) # fijar la seed para que el kmeans dé el mismo resultado y no cambie el mappeo de clusters
+  clusters <- realizar_Kmeans(datos, nombres, 3, "Clústering de empresas según financiación total (€) y valoración (€) | k = 3\n(Filtrando Serie C y D)")
+  clusters <- dplyr::recode(
+    as.character(clusters),
+    "1" = "ROJO",
+    "2" = "VERDE",
+    "3" = "AZUL"
+  )
   
   # heatmap
   plot_heatmapNominal(clusters, etiquetas, rev(colores5), "Correlación entre clústers y madurez financiera", "Cluster", "Madurez financiera")
@@ -200,7 +204,7 @@ datos <- data.frame(df_empresas$Valoracion, df_empresas$Financiacion)
     Atributo = etiquetas,
     Cluster = clusters
   )
-  tabla
+  
   
   
 # H3: Existe una relación positiva entre los ingresos y la valoración económica:
@@ -213,11 +217,11 @@ datos <- data.frame(df_empresas$Valoracion, df_empresas$Ingresos)
   shapiro.test(df_empresas$Ingresos) # no normal, usar spearman
   
 
-  realizar_correlation_test(df_empresas$Valoracion, df_empresas$Ingresos, "pearson") 
+ # realizar_correlation_test(df_empresas$Valoracion, df_empresas$Ingresos, "pearson") 
   realizar_correlation_test(df_empresas$Valoracion, df_empresas$Ingresos, "spearman")
   
   names(datos) <- c("Valoración", "Ingresos")
-  realizar_correlation_matrix(datos, "pearson")
+#  realizar_correlation_matrix(datos, "pearson")
   realizar_correlation_matrix(datos, "spearman")
   
   # Scatterplot
@@ -226,6 +230,10 @@ datos <- data.frame(df_empresas$Valoracion, df_empresas$Ingresos)
   
 
   
+  datos <- datos[-2,]
+
+  plot_scatterNumerico(datos[[1]], datos[[2]], "Correlación entre valoración e ingresos \n(Filtrado Ingresos < 60.000.000€)", "Valoración (€)", "Ingresos (€)", TRUE)
+  
   
   
 
@@ -233,32 +241,39 @@ datos <- data.frame(df_empresas$Valoracion, df_empresas$Ingresos)
   # (Si la documentacion es muy larga, quitar esta hipotesis pq es la mas redundante)
   
   # Kruskal/ANOVA por cada par
-  analisis_comparativo(df_empresas$Valoracion, df_empresas$Madurez_Financiera)
-  analisis_comparativo(df_empresas$Valoracion, df_empresas$Madurez_Empresarial)
+#  analisis_comparativo(df_empresas$Valoracion, df_empresas$Madurez_Financiera)
+#  analisis_comparativo(df_empresas$Valoracion, df_empresas$Madurez_Empresarial)
 
   #box plot
-  plot_box(df_empresas$Madurez_Financiera, df_empresas$Valoracion, 
-           "Valoracion económica vs. Madurez financiera", "Madurez financiera", "Valoracion (€)", colores4, TRUE)
+#  plot_box(df_empresas$Madurez_Financiera, df_empresas$Valoracion, 
+#           "Valoracion económica vs. Madurez financiera", "Madurez financiera", "Valoracion (€)", colores4, TRUE)
   
-  plot_box(df_empresas$Madurez_Empresarial, df_empresas$Valoracion, 
-           "Valoracion económica vs. Madurez empresarial", "Madurez empresarial", "Valoracion (€)", colores3, TRUE)
+#  plot_box(df_empresas$Madurez_Empresarial, df_empresas$Valoracion, 
+#           "Valoracion económica vs. Madurez empresarial", "Madurez empresarial", "Valoracion (€)", colores3, TRUE)
 
   
   
   
-# H5: Características empresariales (empleados, spinout, acquired) afecta a la madurez financiera 
+# H4: Características empresariales (empleados, spinout, acquired) afecta a la madurez financiera 
 
 datos <- data.frame(df_empresas$Madurez_Financiera, df_empresas$Empleados, df_empresas$Es_Spinout, df_empresas$Fue_Adquirido) 
-
 
   # regresion lineal
   realizar_regresion_lineal(datos, TRUE)
   realizar_regresion_lineal(datos, FALSE)
   
   # scatterplot + heatmap
-  plot_scatterNominal(datos[[1]], datos[[2]], colores4, "Correlación entre madurez financiera y número de empleados", "Madurez financiera", "Nº empleados", TRUE)
-  plot_heatmapNominal(datos[[1]], datos[[3]], rev(colores5), "Correlación entre madurez financiera y ser spin-out", "Madurez financiera", "Es spin-out") 
-  plot_heatmapNominal(datos[[1]], datos[[4]], rev(colores5), "Correlación entre madurez financiera y ser adquirido", "Madurez financiera", "Fue adquirido") # tendencia a ser adquirida sube por tier, excepto para Serie_C_D
+  plot_scatterNominal(datos[[1]], datos[[2]], colores4_2, "Correlación entre madurez financiera \ny número de empleados", "Madurez financiera", "Nº empleados", FALSE)
+  
+  datos <- datos[-2, ]
+  plot_scatterNominal(datos[[1]], datos[[2]], colores4_2, "Correlación entre madurez financiera \ny número de empleados \n(Filtrado Nº empleados < 500)", "Madurez financiera", "Nº empleados", FALSE)
+  
+  
+  datos <- data.frame(df_empresas$Madurez_Financiera, df_empresas$Empleados, df_empresas$Es_Spinout, df_empresas$Fue_Adquirido) 
+  
+  
+  plot_heatmapNominal(datos[[1]], datos[[3]], rev(colores5), "Correlación entre madurez financiera y ser derivada", "Madurez financiera", "Es derivada") 
+  plot_heatmapNominal(datos[[1]], datos[[4]], rev(colores5), "Correlación entre madurez financiera y ser adquirido", "Madurez financiera", "Fue adquirida") # tendencia a ser adquirida sube por tier, excepto para Serie_C_D
   
   
  # plot_barGroup(datos[[3]], datos[[1]], colores4, "Ser spin-out o no agrupado por madurez financiera", "Es spin-out", "Madurez\nfinanciera")
@@ -268,14 +283,14 @@ datos <- data.frame(df_empresas$Madurez_Financiera, df_empresas$Empleados, df_em
 
   # decision tree
   names(datos) <- c("Madurez_financiera", "N.empleados", "Spinout", "Adquirida")
-  realizar_decision_tree(datos, "Arbol de clasificación de madurez financiera según Nº empleados,\nser spin-out y ser adquirido", as.list(colores_arbol))
+  realizar_decision_tree(datos, "Arbol de clasificación de madurez financiera según Nº empleados,\nser derivado y ser adquirido", as.list(colores_arbol))
 
 
   
   
   
   
-# H6: Las empresas más antiguas poseen más rondas de financiación y una mayor financiacion
+# H5: Las empresas más antiguas poseen más rondas de financiación y una mayor financiacion
 
 datos <- data.frame(df_empresas$Financiacion, df_empresas$Rondas_De_Financiacion, df_empresas$Año_Fundacion) 
 
@@ -284,8 +299,9 @@ datos <- data.frame(df_empresas$Financiacion, df_empresas$Rondas_De_Financiacion
   realizar_regresion_lineal(datos, FALSE)
 
   # scatterplot
-  plot_scatterNumerico(datos[[1]], datos[[2]], "Correlación entre financiación y número de rondas de financiación", "Financiación total (€)", "Nº rondas", TRUE) # Correlacion
-  plot_scatterNumerico(datos[[1]], datos[[3]], "Correlación entre financiación y año de fundación", "Financiación total (€)", "Año de fundación", TRUE) # No correlacion
+  plot_scatterNumerico(datos[[1]], datos[[2]], "Correlación entre financiación \ny número de rondas de financiación", "Financiación total (€)", "Nº rondas", TRUE) # Correlacion
+
+  plot_scatterNumerico(datos[[1]], datos[[3]], "Correlación entre financiación \ny año de fundación", "Financiación total (€)", "Año de fundación", TRUE) # No correlacion
   
 
   # Pearson / spearman
@@ -293,14 +309,14 @@ datos <- data.frame(df_empresas$Financiacion, df_empresas$Rondas_De_Financiacion
   shapiro.test(datos[[2]])# no normal, usar spearman
   shapiro.test(datos[[3]])# no normal, usar spearman
   
-  realizar_correlation_test(datos[[1]], datos[[2]], "pearson")
-  realizar_correlation_test(datos[[1]], datos[[3]], "pearson")
+ # realizar_correlation_test(datos[[1]], datos[[2]], "pearson")
+#  realizar_correlation_test(datos[[1]], datos[[3]], "pearson")
   
   realizar_correlation_test(datos[[1]], datos[[2]], "spearman")
   realizar_correlation_test(datos[[1]], datos[[3]], "spearman")
   
   names(datos) <- c("Financiacion", "Nº rondas", "Año fundación")
-  realizar_correlation_matrix(datos, "pearson")
+#  realizar_correlation_matrix(datos, "pearson")
   realizar_correlation_matrix(datos, "spearman")
 
 
@@ -358,33 +374,33 @@ datos <- data.frame(df_empresas$Financiacion, df_empresas$Rondas_De_Financiacion
   #         "Boxplot: Valoracion vs Madurez Financiera", "x", "y", colores2, FALSE)
   
   
-  # H7: La formación tecnológica, fundador en serie y edad de los fundadores está asociada con la madurez financiacion
+  # H6: La formación tecnológica, fundador en serie y edad de los fundadores está asociada con la madurez financiacion
   
   
   datos <- data.frame(df_empresas$Madurez_Financiera, df_empresas$Fundador_En_Serie, df_empresas$Fundador_Edad, df_empresas$Fundador_Estudios) 
 
   names(datos) <- c("Madurez financiera", "Fundador en serie", "Edad de fundadores", "Estudios de fundadores")
- 
-  # chi cuadrada
-  realizar_chicuadrada(datos[1],datos[2]) #
+
+    # chi cuadrada
+  realizar_chicuadrada(datos[1],datos[2]) 
   realizar_chicuadrada(datos[1],datos[3])
   realizar_chicuadrada(datos[1],datos[4])
 
   # heatmap
-  plot_heatmapNominal(datos[[1]], datos[[2]], rev(colores5), "Correlación entre madurez financiera y fundador en serie", "Madurez financiera", "Fundador en serie") 
+  plot_heatmapNominal(datos[[1]], datos[[2]], rev(colores5), "Correlación entre madurez financiera y \nfundador en serie", "Madurez financiera", "Fundador en serie") 
   
   
   # MCA
-  datos <- data.frame(df_empresas$Madurez_Financiera, df_empresas$Fundador_En_Serie, df_empresas$Fundador_Estudios, df_empresas$Fundador_Edad) 
-  names(datos) <- c("Madurez financiera", "Fundadores en serie", "Estudios de fundadores", "Edad de fundadores")
+#  datos <- data.frame(df_empresas$Madurez_Financiera, df_empresas$Fundador_En_Serie, df_empresas$Fundador_Estudios, df_empresas$Fundador_Edad) 
+#  names(datos) <- c("Madurez financiera", "Fundadores en serie", "Estudios de fundadores", "Edad de fundadores")
   
-  realizar_MCA(datos, "Relación entre madurez financiera y características de fundadores")
+#  realizar_MCA(datos, "Relación entre madurez financiera \ny características de fundadores")
   
   
   datos <- data.frame(df_empresas$Madurez_Financiera, df_empresas$Fundador_En_Serie) 
   names(datos) <- c("Madurez financiera", "Fundadores en serie")
   
-  realizar_MCA(datos, "Relación entre madurez financiera y fundadores en serie")
+  realizar_MCA(datos, "Relación entre madurez \nfinanciera y fundadores en serie")
 
 
   
@@ -393,15 +409,15 @@ datos <- data.frame(df_empresas$Financiacion, df_empresas$Rondas_De_Financiacion
 
   
   
-# H8: Las empresas adquiridas presentan diferencias en cantidad de empleados respecto a las no adquiridas
+# H7: Las empresas adquiridas presentan diferencias en cantidad de empleados respecto a las no adquiridas
 
-
+# Logica = Las empresas adquiridas tienen mejor financiacion. Si contratamos mas gente, mas chance de ser adquiridos?
+  
   datos <- data.frame(df_empresas$Empleados, df_empresas$Fue_Adquirido) 
   
   
   # t-test/whitney
   analisis_comparativo(datos[[1]], datos[[2]])
-
   # box plot
   plot_box(datos[[2]], datos[[1]], 
            "Boxplot: Cantidad empleados vs. Fue adquirido", "Fue adquirido", "Nº empleados", colores2, FALSE)
@@ -414,9 +430,10 @@ datos <- data.frame(df_empresas$Financiacion, df_empresas$Rondas_De_Financiacion
   
   
   
-# H9: Ciertas CA estan asociadas con una mayor probabilidad de adquisición.
+# H8: Ciertas CA estan asociadas con una mayor probabilidad de adquisición.
   
-
+  # Logica = Las empresas adquiridas tienen mejor financiacion. Igual pero con localidad
+  
   datos <- data.frame(df_empresas$Fue_Adquirido, df_empresas$CA) 
   names(datos) <- c("Fue adquirido", "Comunidad autónoma")
   
@@ -432,17 +449,17 @@ datos <- data.frame(df_empresas$Financiacion, df_empresas$Rondas_De_Financiacion
   
   
   
-# H10: Los sectores de actividad y localidades están correlacionados
+# H9: Los sectores de actividad y localidades están correlacionados
 
-datos <- data.frame(df_empresas$Industria_Secundaria, df_empresas$CA) 
-names(datos) <- c("Industria", "Comunidad autónoma")
+#datos <- data.frame(df_empresas$Industria_Secundaria, df_empresas$CA) 
+#names(datos) <- c("Industria", "Comunidad autónoma")
 
 
   #chi cuadrada
-  realizar_chicuadrada(datos[1],datos[2])
+ # realizar_chicuadrada(datos[1],datos[2])
   
   # heatmap
-  plot_heatmapNominal(datos[[1]], datos[[2]], rev(colores5), "Correlación entre subindustria y comunidad autónoma", "Subindustria", "Comunidad autónoma") 
+ # plot_heatmapNominal(datos[[1]], datos[[2]], rev(colores5), "Correlación entre subindustria y comunidad autónoma", "Subindustria", "Comunidad autónoma") 
   
 
   
@@ -451,7 +468,7 @@ names(datos) <- c("Industria", "Comunidad autónoma")
   
   
 
-# H11: Existen diferencias en la financiación entre comunidades autónomas o sectores.
+# H9: Existen diferencias en la financiación entre comunidades autónomas o sectores.
 
 datos <- data.frame(df_empresas$Financiacion, df_empresas$CA, df_empresas$Industria_Secundaria) 
 names(datos) <- c("Financiacion", "CA", "Industria_Secundaria")

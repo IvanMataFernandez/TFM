@@ -49,7 +49,7 @@ plot_mapa <- function(columna_ccaa, titulo, leyenda) {
         "N/A",
         paste0(cant,"\n( ",round(porcentaje, 1), "% )")
       )),
-      size = 3,
+      size = 4,
       fontface = "bold",
       color = "black"
     ) +
@@ -64,7 +64,8 @@ plot_mapa <- function(columna_ccaa, titulo, leyenda) {
     ) +
     labs(title = paste("                         ", titulo)) +
     theme_void() + theme(
-      plot.title = element_text(face = "bold", hjust = 0.5),
+      
+      plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
       legend.position = c(0.1, 0.9)
     )
   
@@ -103,7 +104,7 @@ plot_mapa_proporciones <- function(columna_ccaa, proporciones, titulo, leyenda) 
         "N/A",
         paste0(round(porcentaje, 1), "%")
       )),
-      size = 3,
+      size = 4,
       fontface = "bold",
       color = "black"
     ) +
@@ -143,10 +144,10 @@ plot_pie <- function(columna_nominal, label_leyenda, colores, titulo) {
       position = position_stack(vjust = 0.5),
       color = "black",
       fontface = "bold",
-      size = 4
+      size = 6
     ) + scale_fill_manual(values=colores) + labs(fill = label_leyenda, title = titulo) +
       theme(
-      plot.title = element_text(face = "bold", hjust = 0.5),
+      plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
       legend.position = "none"
     )
   
@@ -187,7 +188,7 @@ plot_heatmapNominal <- function (columna_nominal1, columna_nominal2, colores, ti
         round(porcentaje, 1), "%"
       )),
       color = "black",
-      size = 4
+      size = 7
     ) +
     scale_fill_gradientn(
       colours = colores,
@@ -202,7 +203,9 @@ plot_heatmapNominal <- function (columna_nominal1, columna_nominal2, colores, ti
       y = labelY
     ) +
     theme_minimal() + theme(
-      plot.title = element_text(face = "bold", hjust = 0.5),
+      plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+      axis.text = element_text(size = 16),
+      axis.title = element_text(size = 18),
       legend.position = "none"
     )
 
@@ -235,12 +238,18 @@ plot_scatterNominal <- function (columna_nominal, columna_numerica, colores, tit
     columna_nominal,
     columna_numerica)
 
-  grafico <- ggplot(data = dataset, mapping = aes(x = columna_nominal, y = columna_numerica, color = columna_nominal)) + geom_jitter() + scale_color_manual(values = colores, name = labelX) + labs(
+  grafico <- ggplot(data = dataset, mapping = aes(x = columna_nominal, y = columna_numerica, color = columna_nominal)) + 
+    geom_jitter(size = 3,
+                position = position_jitter(width = 0, height = 0.1)) + 
+    
+    scale_color_manual(values = colores, name = labelX) + labs(
       title = titulo,            
       x = labelX,
       y = labelY,
     ) + theme(
-      plot.title = element_text(face = "bold", hjust = 0.5),
+      plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+      axis.text = element_text(size = 14),
+      axis.title = element_text(size = 16),
       legend.position = "none"
     )
   
@@ -275,12 +284,14 @@ plot_scatterNumerico <- function (columna_numerica1, columna_numerica2, titulo, 
     columna_numerica1,
     columna_numerica2)
   
-  grafico <- ggplot(data = dataset, mapping = aes(x = columna_numerica1, y = columna_numerica2)) + geom_jitter() + labs(
+  grafico <- ggplot(data = dataset, mapping = aes(x = columna_numerica1, y = columna_numerica2)) + geom_jitter(size = 3) + labs(
     title = titulo,            
     x = labelX,
     y = labelY
   ) + theme(
-    plot.title = element_text(face = "bold", hjust = 0.5),
+    plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+    axis.text = element_text(size = 14),
+    axis.title = element_text(size = 16),
     legend.position = "none"
   )
   
@@ -315,12 +326,14 @@ plot_barSimple <- function (columna, colores, titulo, labelX, leyenda) {
                 )
               ),
               vjust = -0.5,
-              size = 3.5
+              size = 5
             ) +  
             scale_fill_manual(values=colores) + labs(title = titulo, x = labelX, y = "Cantidad") +
                 theme(
-                    plot.title = element_text(face = "bold", hjust = 0.5),
-                    legend.position = "none"
+                  plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+                  axis.text = element_text(size = 14),
+                  axis.title = element_text(size = 16),
+                  legend.position = "none"
                 )
           
   } else {
@@ -336,10 +349,12 @@ plot_barSimple <- function (columna, colores, titulo, labelX, leyenda) {
                 )
               ),
               vjust = -0.5,
-              size = 3.5
+              size = 5
             ) + labs(title = titulo, x = labelX, y = "Cantidad", fill = leyenda) +
             theme(
-              plot.title = element_text(face = "bold", hjust = 0.5),
+              plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+              axis.text = element_text(size = 14),
+              axis.title = element_text(size = 16),
               legend.position = "none"
             )  
             
@@ -347,12 +362,30 @@ plot_barSimple <- function (columna, colores, titulo, labelX, leyenda) {
 
     
     if (length(unique(columna)) > 10) {
+      
+      plot$layers <- plot$layers[-which(
+        sapply(plot$layers, function(x) inherits(x$geom, "GeomText"))
+      )]
+      
       plot <- plot + theme(
       text = element_text(size = 9),
       plot.title = element_text(size = 11),
       axis.title = element_text(size = 8),
       axis.text = element_text(size = 7)
+      ) + geom_text(
+        stat = "count",
+        aes(
+          label = paste0(
+            after_stat(count),
+            " (",
+            round(after_stat(count / sum(count) * 100), 1),
+            "%)"
+          )
+        ),
+        vjust = -0.5,
+        size = 3.5
       )
+      
     }
     
     
@@ -409,7 +442,9 @@ plot_barGroup <- function (columna_nominal, columna_grupal, colores, titulo, lab
       fill = leyenda
     ) +
     theme(
-      plot.title = element_text(face = "bold", hjust = 0.5)
+      plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+      axis.text = element_text(size = 14),
+      axis.title = element_text(size = 16)
     )
 }
 
@@ -440,7 +475,9 @@ plot_2D <- function (columna_numerico, titulo, labelY) {
       name = "f(x)"
     ) + labs(title = titulo, x = "Instancias", y = labelY) +   theme_minimal(base_size = 13) +
     theme(
-      plot.title = element_text(face = "bold", hjust = 0.5),
+      plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+      axis.text = element_text(size = 14),
+      axis.title = element_text(size = 16),
       legend.position = "none"
     )
   
@@ -465,7 +502,9 @@ plot_box <- function (columna_nominal, columna_numerico, titulo, labelX, labelY,
     ) +
       theme(
         plot.title = element_text(face = "bold", hjust = 0.5),
-        legend.position = "none"
+        legend.position = "none",
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16)
       )
     
     
@@ -477,7 +516,9 @@ plot_box <- function (columna_nominal, columna_numerico, titulo, labelX, labelY,
     ) +
      theme(
         plot.title = element_text(face = "bold", hjust = 0.5),
-        legend.position = "none"
+        legend.position = "none",
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16)
       )
     
   }

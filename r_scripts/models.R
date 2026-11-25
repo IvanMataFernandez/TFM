@@ -157,15 +157,22 @@ realizar_correlation_matrix <- function (matriz_numerica, tipo) {
   correlation <- cor(matriz_numerica, method = tipo) # tipo = "pearson" or "spearman"
   
   # en heatmap
-  print(ggcorrplot(correlation, lab = TRUE, lab_size = 6, digits = 5, type = "full", title = "Correlación entre variables")+ theme(plot.title = element_text(face = "bold", hjust = 0.5),legend.position = "none")) 
-  correlation  # en texto
+  print(ggcorrplot(correlation, lab = TRUE, lab_size = 8, digits = 5, type = "full", title = paste0("Matriz de correlaciones de ",tools::toTitleCase(tipo))) 
+        +
+          theme(
+            plot.title = element_text(size = 22, face = "bold", hjust = 0.5),
+            axis.text.x = element_text(size = 16),
+            axis.text.y = element_text(size = 16),
+            legend.position = "none",
+            correlation  # en texto
+          ))
   
 }
 
 realizar_correlation_test <- function (col_numerica1, col_numerica2, tipo) {
   
 
-  correlation <- cor.test(col_numerica1, col_numerica2, method = tipo)  # tipo = "pearson" or "spearman"
+  correlation <- cor.test(col_numerica1, col_numerica2, method = tipo, exact = FALSE)  # tipo = "pearson" or "spearman"
   print(correlation)
   
 }
@@ -212,9 +219,13 @@ realizar_chicuadrada <- function (col_categorica1, col_categorica2) {
     ) +
     
     labs(
-      title = paste("Asociación entre variables categóricas: ",nombre_col1," y ", nombre_col2),
-      subtitle = paste("Test chi-cuadrado | p-value:", 
-                       signif(test$p.value, 3)),
+      title = paste("Asociación entre variables categóricas: \n",nombre_col1,"y", nombre_col2),
+      subtitle = paste(
+        "Test chi-cuadrado || Estadísticos ->  χ²:",
+        round(unname(test$statistic), 3),
+        "| p-valor:",
+        signif(test$p.value, 3)
+      ),
       x = nombre_col2,
       y = nombre_col1,
       fill = "Residuo \nestandarizado \nde Pearson"
@@ -223,10 +234,9 @@ realizar_chicuadrada <- function (col_categorica1, col_categorica2) {
     theme_minimal() +
     
     theme(
-      plot.title = element_text(
-        hjust = 0.5,
-        face = "bold"
-      )
+      plot.title = element_text(face = "bold", hjust = 0.5),
+      axis.text = element_text(size = 14),
+      axis.title = element_text(size = 16),      
     )
   
   
@@ -422,10 +432,10 @@ realizar_MCA <- function (df_mca_data, titulo) {
     color = Atributo,
     label = Categorias
   )) +
-    geom_point(size = 3) +
+    geom_point(size = 4) +
     geom_hline(yintercept = 0, color = "black", linewidth = 0.6) +
     geom_vline(xintercept = 0, color = "black", linewidth = 0.6) +
-    geom_text_repel() +
+    geom_text_repel(size = 5) +
     theme_minimal() +
     labs(
       title = titulo,
@@ -433,13 +443,13 @@ realizar_MCA <- function (df_mca_data, titulo) {
       y = "Dimensión 2",
       color = "Atributo"
     ) +
-    theme(plot.title = element_text(face = "bold", hjust = 0.5))
+    theme(plot.title = element_text(size = 16, face = "bold", hjust = 0.5), axis.text = element_blank(), axis.title = element_blank(), legend.text = element_text(size = 14), legend.title = element_text(size = 16))
       
     
   
   print(grafico)
-  print(fviz_contrib(mca_result, choice = "var", axes = 1, top = 99, title = "Contribución de atributos en dimensión 1") + theme(plot.title = element_text(face = "bold", hjust = 0.5)) )
-  print(fviz_contrib(mca_result, choice = "var", axes = 2, top = 99, title = "Contribución de atributos en dimensión 2") + theme(plot.title = element_text(face = "bold", hjust = 0.5)) )
+  print(fviz_contrib(mca_result, choice = "var", axes = 1, top = 99, title = "Contribución de atributos en dimensión 1") + labs(y = "Contribución (%)") + theme(plot.title = element_text(size = 16, face = "bold", hjust = 0.5), axis.text = element_text(size = 14), axis.title = element_text(size = 16)) )
+  print(fviz_contrib(mca_result, choice = "var", axes = 2, top = 99, title = "Contribución de atributos en dimensión 2") + labs(y = "Contribución (%)") + theme(plot.title = element_text(size = 16, face = "bold", hjust = 0.5), axis.text = element_text(size = 14), axis.title = element_text(size = 16)) )
   
   
   cat("Peso (%) de cada dimension. Se plottean las dos primeras con mas peso: \n")
@@ -497,8 +507,21 @@ realizar_Kmeans <- function (df_kmeans_data, nombres, k, titulo) {
   ))  
   
   # visualizar los clusters creados
-  print(fviz_cluster(list(data = matriz, cluster = clusters)) + ggtitle(titulo) + theme(plot.title = element_text(face = "bold", hjust = 0.5),legend.position = "none")) 
+  print(fviz_cluster(list(data = matriz, cluster = clusters)) + ggtitle(titulo) +
+          scale_x_continuous(labels = NULL) +
+          scale_y_continuous(labels = NULL) +
+          theme(
+          plot.title = element_text(face = "bold", hjust = 0.5),
+          legend.position = "none", 
+          axis.text = element_blank(),
+          axis.ticks = element_line(color = "black"),
+          axis.title = element_text(size = 16)
+        )) 
  
+  
+
+  
+  
   
   return(clusters)
 
