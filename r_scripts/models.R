@@ -143,8 +143,50 @@ realizar_decision_tree <- function (matriz, titulo, colores) {
     
   }
 
+  clases <- levels(factor(dataset[[1]]))
   
-
+  valores_reales <- factor(dataset[[1]], levels = clases)
+  
+  predicciones <- factor(
+    predict(tree, newdata = dataset, type = "class"),
+    levels = clases
+  )
+  
+  matriz_confusion <- table(
+    Real = valores_reales,
+    Predicho = predicciones
+  )
+  
+  aciertos <- diag(matriz_confusion)
+  total_clase <- rowSums(matriz_confusion)
+  
+  ratio_exito <- (aciertos / total_clase) * 100
+  
+  cat("\n--------------------------------------\n")
+  cat("RATIO DE ÉXITO DE CLASIFICACIÓN POR CLASE\n")
+  cat("--------------------------------------\n")
+  
+  for (i in seq_along(clases)) {
+    cat(
+      clases[i], ": ",
+      round(ratio_exito[i], 2), "%",
+      " (", aciertos[i], "/", total_clase[i], ")\n",
+      sep = ""
+    )
+  }
+  
+  precision_global <- sum(aciertos) / sum(matriz_confusion) * 100
+  
+  cat("--------------------------------------\n")
+  cat("PRECISIÓN GLOBAL: ",
+      round(precision_global, 2), "%\n", sep = "")
+  cat("--------------------------------------\n")
+  
+  # Mostrar matriz de confusión
+  cat("\nMATRIZ DE CONFUSIÓN:\n")
+  print(matriz_confusion)
+  
+  
   
    
 }

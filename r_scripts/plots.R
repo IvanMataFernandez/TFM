@@ -289,9 +289,9 @@ plot_scatterNumerico <- function (columna_numerica1, columna_numerica2, titulo, 
     x = labelX,
     y = labelY
   ) + theme(
-    plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
-    axis.text = element_text(size = 14),
-    axis.title = element_text(size = 16),
+      plot.title = element_text(size = 18, face = "bold", hjust = 0.5),
+      axis.text = element_text(size = 14),
+      axis.title = element_text(size = 16),
     legend.position = "none"
   )
   
@@ -525,6 +525,38 @@ plot_box <- function (columna_nominal, columna_numerico, titulo, labelX, labelY,
   
   
 }
+
+
+plot_funcion_exponencial <- function(base, labX, labY) {
+  eje_x <- seq(0, 100, by = 0.1)
+  eje_y <- base^eje_x
+  
+  plot(eje_x, eje_y,
+       type = "l",
+       col = "blue",
+       lwd = 2,
+       xlab = labX,
+       ylab = labY,
+       las = 1,
+       cex.axis = 1.5,
+       cex.lab = 1.3,
+       cex.main = 1.8,
+       yaxt = "n")  
+  
+  
+  valores_y <- seq(0, 10, by = 1)
+  
+  axis(side = 2,
+       at = valores_y,
+       labels = paste0("x", valores_y),
+       las = 1,
+       cex.axis = 1.5)  
+  
+  grid()
+  
+  
+} 
+
 ######## UNUSED ###############
 
 

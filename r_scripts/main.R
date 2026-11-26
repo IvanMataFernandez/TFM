@@ -162,6 +162,10 @@ datos <- data.frame(df_empresas$Valoracion, df_empresas$Financiacion)
 #  realizar_correlation_matrix(datos, "pearson")
   realizar_correlation_matrix(datos, "spearman")
   
+  
+  plot_scatterNumerico(datos[[1]], datos[[2]], "Correlación entre valoración y financiación", "Valoración (€)", "Financiación (€)", TRUE)
+  
+  
   # KMeans
   cantidad_clusters_Kmeans(datos)
   
@@ -261,6 +265,10 @@ datos <- data.frame(df_empresas$Madurez_Financiera, df_empresas$Empleados, df_em
   # regresion lineal
   realizar_regresion_lineal(datos, TRUE)
   realizar_regresion_lineal(datos, FALSE)
+  
+  
+  plot_funcion_exponencial(1.02411, "Diferencia en empleados", "Bonus de probabilidad")
+    
   
   # scatterplot + heatmap
   plot_scatterNominal(datos[[1]], datos[[2]], colores4_2, "Correlación entre madurez financiera \ny número de empleados", "Madurez financiera", "Nº empleados", FALSE)
